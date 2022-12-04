@@ -21,7 +21,7 @@ So that I can receive email updates when new content is published on the blog.
 I want to send an email to all my subscribers,
 So that I can notify them when new content is published.
 
-## signing up a new subscriber
+## three: signing up a new subscriber
 
 Project at the moment is empty:
 Need to decide on a project, framework, database, testing strategy, and some endpoint setup.
