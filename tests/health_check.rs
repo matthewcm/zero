@@ -1,4 +1,4 @@
-use std::{net::TcpListener };
+use std::net::{TcpListener };
 
 
 
@@ -33,7 +33,7 @@ async fn subscribe_returns_200_for_valid_form () {
     // Act
     let response = client
         .post(&format!("{}/subscriptions", &app_address))
-        .header("Content-Type", "application/x-wwww-form-urlencoded")
+        .header("Content-Type", "application/x-www-form-urlencoded")
         .body(body)
         .send()
         .await
@@ -50,20 +50,26 @@ async fn subscribe_returns_400_for_invalid_form () {
     let app_address = spawn_app();
 
     let client = reqwest::Client::new();
-    let body = "&email=mcm@matthewcm.dev";
+    let test_cases = vec![                  
+        ("name=matthew", "missing the email"),
+        ("email=matthew@gmail.com", "missing the name"),
+        ("", "missing both email and mail")   ,
+    ];
+    for (invalid_body, error_message) in test_cases {
+        // Act
+        let response = client
+            .post(&format!("{}/subscriptions", &app_address))
+            .header("Content-Type", "application/x-www-form-urlencoded")
+            .body(invalid_body)
+            .send()
+            .await
+            .expect("Failed to execute request.");
 
-    // Act
-    let response = client
-        .post(&format!("{}/subscriptions", &app_address))
-        .header("Content-Type", "application/x-wwww-form-urlencoded")
-        .body(body)
-        .send()
-        .await
-        .expect("Failed to execute request.");
 
+        // Assert
+        assert_eq!(400, response.status().as_u16(), "The API did not fail with 400 Bad Request :{}", error_message);
 
-    // Assert
-    assert_eq!(400, response.status().as_u16(), "Invalid body");
+    }
 
 }
 
@@ -79,6 +85,6 @@ fn spawn_app() -> String {
 
     let _ = tokio::spawn(server);
     // Created the server with random port. Now just need to find what time was used.
-    
+
     format!("http://127.0.0.1:{}", port)
 }
