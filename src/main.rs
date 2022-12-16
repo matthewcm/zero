@@ -1,4 +1,5 @@
 use std::net::TcpListener;
+use zero::startup::run;
 
 #[tokio::main]
 async fn main() -> () {
@@ -8,7 +9,7 @@ async fn main() -> () {
 
     let port = listener.local_addr().unwrap().port();
 
-    let server = zero::run( listener ).expect("Failed to bind address");
+    let server = run( listener ).expect("Failed to bind address");
 
     let _ = tokio::spawn(server);
 

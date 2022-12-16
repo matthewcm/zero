@@ -80,7 +80,7 @@ fn spawn_app() -> String {
     let port = listener.local_addr().unwrap().port();
 
     println!("{}",port);
-    let server = zero::run( listener )
+    let server = zero::startup::run( listener )
         .expect("Failed to bind address");
 
     let _ = tokio::spawn(server);
