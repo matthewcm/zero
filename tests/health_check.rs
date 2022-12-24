@@ -1,4 +1,7 @@
-use std::net::{TcpListener };
+use sqlx::{PgConnection, Connection};
+use std::net::TcpListener;
+
+use zero::configuration::{self, get_configuration};
 
 
 
@@ -26,6 +29,15 @@ async fn health_check_works() {
 async fn subscribe_returns_200_for_valid_form () {
     // Arrange
     let app_address = spawn_app();
+
+    let configuration = get_configuration().expect("Failed to read configuration");
+
+    let connection_string = configuration.database.connection_string();
+
+    let connection = PgConnection::connect(
+        &connection_string
+    ).await
+    .expect("Failed to connect to postgres.");
 
     let client = reqwest::Client::new();
     let body = "name=Matthew%20Castrillon&email=mcm@matthewcm.dev";
