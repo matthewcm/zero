@@ -8,7 +8,7 @@ use zero::configuration::{self, get_configuration};
 #[tokio::test]
 async fn health_check_works() {
     // Arrange
-    let app_address = spawn_app();
+    let app_address = spawn_app().await;
 
     let client = reqwest::Client::new();
 
@@ -28,7 +28,7 @@ async fn health_check_works() {
 #[tokio::test]
 async fn subscribe_returns_200_for_valid_form () {
     // Arrange
-    let app_address = spawn_app();
+    let app_address = spawn_app().await;
 
     let configuration = get_configuration().expect("Failed to read configuration");
 
@@ -59,7 +59,7 @@ async fn subscribe_returns_200_for_valid_form () {
 #[tokio::test]
 async fn subscribe_returns_400_for_invalid_form () {
     // Arrange
-    let app_address = spawn_app();
+    let app_address = spawn_app().await;
 
     let client = reqwest::Client::new();
     let test_cases = vec![                  
@@ -85,14 +85,22 @@ async fn subscribe_returns_400_for_invalid_form () {
 
 }
 
-fn spawn_app() -> String {
+async fn spawn_app() -> String {
+    let configuration = get_configuration().expect("Failed to read configuration");
+    
+    let connection = PgConnection::connect(
+        &configuration.database.connection_string()
+    )
+        .await
+        .expect("Failed to connect to postgres");
+        
     let listener = TcpListener::bind("127.0.0.1:0")
         .expect("Failed to bind random port");
 
     let port = listener.local_addr().unwrap().port();
 
     println!("{}",port);
-    let server = zero::startup::run( listener )
+    let server = zero::startup::run( listener, connection )
         .expect("Failed to bind address");
 
     let _ = tokio::spawn(server);
