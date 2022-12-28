@@ -1,3 +1,4 @@
+use actix_web::middleware::Logger;
 use actix_web::{HttpServer, App, web };
 use actix_web::dev::Server;
 use sqlx::PgPool;
@@ -12,6 +13,7 @@ pub fn run (
 
     let server = HttpServer::new(move || {
         App::new()
+            .wrap(Logger::default())
             .route("/health_check", web::get().to(health_check))
             .route("/subscriptions", web::post().to(subscribe))
             .app_data(connection.clone())
