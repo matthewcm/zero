@@ -26,6 +26,9 @@ So that I can notify them when new content is published.
 Project at the moment is empty:
 Need to decide on a project, framework, database, testing strategy, and some endpoint setup.
 
+### CI Pipeline
+Using github actions to automate builds on prs or pushes.
+
 ### Framework: Actix-web
 Chosen because of the popular use of this tool, community is important, and documentation so far is pretty good.
 I have tried out Rocket in the past, but didn't gel with me.
@@ -33,3 +36,14 @@ I have tried out Rocket in the past, but didn't gel with me.
 #### Database: SQLX
 Written using general SQL syntax. So it is pretty portable and resistant to if I want to swap out the framework at a later date.
 How to use, is pretty similar to other tools such as Diesel. Diesel might be worth looking at later, but requires some additional learning.
+
+## four: Telemetary
+Telemetary allows us to be aware of the unknown.
+Tests are good, but we need logs in production that would allow us to identify and be able to have enough information to debug an issue.
+
+any interaction with external systems over the network should be closely monitored.
+
+As a rule of thumb, everything we use in our application should be reflected in our integration tests.
+ 
+To add telemetary is to instrument the application.
+if you cannot debug it from logs, imagine how difficult would it be to debug in production!
