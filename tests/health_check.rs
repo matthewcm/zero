@@ -1,14 +1,36 @@
+use once_cell::sync::Lazy;
+use secrecy::ExposeSecret;
 use sqlx::{PgConnection, Connection, PgPool, Executor};
 use uuid::Uuid;
 use std::net::TcpListener;
 
-use zero::configuration::{self, get_configuration, DatabaseSettings};
+use zero::{configuration::{self, get_configuration, DatabaseSettings}, telemetry::{get_subscriber, init_subscriber}};
 
 struct TestApp {
     pub address: String,
     pub db_pool: PgPool
 }
 
+static TRACING: Lazy<()> = Lazy::new(|| {
+    let subscriber_name = "test".into();
+    let default_filter_level = "debug".into();
+
+    if std::env::var("TEST_LOG").is_ok() {
+        let subscriber = get_subscriber(
+            subscriber_name, 
+            default_filter_level, 
+            std::io::sink
+        );
+        init_subscriber(subscriber);
+    } else {
+        let subscriber = get_subscriber(
+            subscriber_name, 
+            default_filter_level, 
+            std::io::stdout
+        );
+        init_subscriber(subscriber);
+    }
+});
 
 #[tokio::test]
 async fn health_check_works() {
@@ -88,6 +110,9 @@ async fn subscribe_returns_400_for_invalid_form () {
 }
 
 async fn spawn_app() -> TestApp {
+
+    Lazy::force(&TRACING);
+
     let listener = TcpListener::bind("127.0.0.1:0")
         .expect("Failed to bind random port");
 
@@ -114,7 +139,7 @@ async fn spawn_app() -> TestApp {
 
 pub async fn configure_database(config: &DatabaseSettings) -> PgPool {
     let mut connection = PgConnection::connect(
-        &config.connection_string_without_db()
+        &config.connection_string_without_db().expose_secret()
     )
     .await
     .expect("Failed to connect to Postgres");
@@ -125,7 +150,7 @@ pub async fn configure_database(config: &DatabaseSettings) -> PgPool {
         .expect("Failed to create Database");
 
     let connection_pool = PgPool::connect(
-        &config.connection_string()
+        &config.connection_string().expose_secret()
     )
         .await
         .expect("Failed to connect to postgres");
