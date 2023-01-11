@@ -56,5 +56,6 @@ Whats involved is ensuring prod, local environment variables, as well as setting
 We have chosen to use digital ocean for deployment, although any cloud provider should suffice. Digital ocean eases the process of generating https certificates.
 Digital ocean setup is done via yaml specs that allow you to define features, environment variables, ci webhook to github repo, postgres database provisioning etc.
 
+# six: static email validation
 
 
