@@ -66,10 +66,8 @@ impl Environment {
         match self {
             Environment::Local => "local",
             Environment::Production => "production",
-            
         }
     }
-    
 }
 
 impl TryFrom<String> for Environment {
