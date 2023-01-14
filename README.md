@@ -58,4 +58,9 @@ Digital ocean setup is done via yaml specs that allow you to define features, en
 
 # six: static email validation
 
+Done some static field validation with some very interesting tests.
+Use of Email fixtures, quickcheck lib ( Property testing ) and Fake to create unique randomised emails to rigourously test the email validator.
+Use of try_into traits to abstract parsers. The parser is now just read as a form to new_subscriber converter.
+
+
 
