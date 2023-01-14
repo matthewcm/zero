@@ -31,6 +31,8 @@ static TRACING: Lazy<()> = Lazy::new(|| {
     }
 });
 
+
+
 #[tokio::test]
 async fn health_check_works() {
     // Arrange
@@ -77,6 +79,39 @@ async fn subscribe_returns_200_for_valid_form () {
         .await
         .expect("Failed to fetch saved subscription.");
     assert_eq!(saved.email, "mcm@matthewcm.dev");
+}
+
+#[tokio::test]
+async fn subscribe_returns_422_when_fields_are_present_but_invalid() {
+    // Arrange
+    let app = spawn_app().await;
+
+    let client = reqwest::Client::new();
+
+    let test_cases = vec![
+        ("name=&email=matthew@gmail.com", "empty name"),
+        ("name=Matthew Castrillon-Madrigal&email=", "empty email"),
+    ];
+
+    for (body, description) in test_cases {
+        // Act
+        let response = client
+            .post(&format!("{}/subscriptions", &app.address))
+            .header("Content-Type", "application/x-www-form-urlencoded")
+            .body(body)
+            .send()
+            .await
+            .expect("Failed to execute request.");
+
+
+        // Assert
+        assert_eq!(
+            422,
+            response.status().as_u16(),
+            "The API did did not return 422 when the payload was {}.",
+            description
+        );
+    }
 }
 
 #[tokio::test]
